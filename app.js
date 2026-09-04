@@ -445,6 +445,15 @@ function renderClients() {
             e.stopPropagation(); // don't also trigger the card's click-to-open-details
             deleteClient(btn.dataset.id);
             renderClients();
+            // FIX: deleting a client used to only refresh the Clients tab, so
+            // if the deleted client belonged to the active project, the
+            // Tracker header and the invoice preview's "Client:"/"To:" fields
+            // kept showing the old name until you switched tabs or reloaded.
+            // These three also re-check whether the active project still
+            // makes sense now that its client may be gone.
+            renderProjects();
+            renderCurrentProject();
+            renderMilestones();
         });
     });
 }
