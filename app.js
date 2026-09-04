@@ -124,7 +124,19 @@ printButton.addEventListener('click', () => {
 });
 
 // 8. Dynamic Date Generator for Commercial Invoicing
-function generateInvoiceDates() {
+//
+// CHANGED: this used to run once on page load and never again, so the dates
+// kept showing even after everything else (client, project) had been
+// deleted and reset to "—". Now it takes a flag: pass true when there's an
+// active project (recalculates today's date + a 14-day due date), or false
+// to reset both fields to the placeholder, same as the other invoice fields.
+function generateInvoiceDates(hasActiveProject) {
+    if (!hasActiveProject) {
+        document.getElementById('invoice-date').textContent = '--/--/----';
+        document.getElementById('invoice-due-date').textContent = '--/--/----';
+        return;
+    }
+
     const today = new Date();
     
     // Calculate a standard 14-day payment window term
@@ -140,9 +152,6 @@ function generateInvoiceDates() {
     document.getElementById('invoice-date').textContent = formattedToday;
     document.getElementById('invoice-due-date').textContent = formattedDueDate;
 }
-
-// Execute the date generation engine immediately on system boot
-generateInvoiceDates();
 
 
 /* ==========================================================================
@@ -699,6 +708,7 @@ function renderCurrentProject() {
         currentProjectNameEl.textContent = 'No active project';
         currentProjectClientEl.textContent = 'Client: —';
         invoiceClientEl.textContent = '—'; // NEW
+        generateInvoiceDates(false); // FIX: reset dates too, not just the client fields
         return;
     }
 
@@ -709,6 +719,7 @@ function renderCurrentProject() {
     currentProjectNameEl.textContent = `Project: ${project.name}`;
     currentProjectClientEl.textContent = `Client: ${clientName}`;
     invoiceClientEl.textContent = clientName; // invoice "To:" now matches the active project's client
+    generateInvoiceDates(true); // FIX: (re)calculate dates whenever there's an active project to show them for
 }
 
 
