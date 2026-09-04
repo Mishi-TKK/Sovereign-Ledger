@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign Ledger</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Small addition: highlight styling for whichever project card is "active".
+         Feel free to move this into style.css later — kept here for now so
+         nothing in your existing stylesheet needs to be touched. -->
+    <style>
+        .client-card-active {
+            border: 2px solid #4f46e5;
+            background-color: #eef2ff;
+        }
+        .active-badge {
+            display: inline-block;
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4f46e5;
+        }
+        .invoice-pref-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .invoice-pref-option {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-weight: normal;
+        }
+        .invoice-pref-tag {
+            display: inline-block;
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            font-style: italic;
+        }
+        .client-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .client-edit-btn {
+            background: white;
+            border: 1px solid #4f46e5;
+            color: #4f46e5;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .client-edit-btn:hover {
+            background: #eef2ff;
+        }
+        .edit-inline-btn {
+            background: none;
+            border: none;
+            color: #4f46e5;
+            font-size: 0.8rem;
+            text-decoration: underline;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.25rem;
+        }
+        .edit-inline-btn:hover {
+            color: #3730a3;
+        }
+        /* NEW: hides the Edit link only when printing/generating the invoice PDF,
+           so it still shows normally on screen but never appears on the invoice itself */
+        @media print {
+            .edit-inline-btn {
+                display: none;
+            }
+        }
+
+        /* ---------- NEW: Invoices tab styling ---------- */
+        .invoice-status-select {
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.85rem;
+            background: white;
+            cursor: pointer;
+        }
+        #invoiceList .client-card-actions {
+            flex-direction: column;
+            align-items: stretch;
+            min-width: 8.5rem;
+        }
+        .invoice-delete-btn {
+            font-size: 0.8rem;
+            padding: 0.35rem 0.6rem;
+        }
+        .invoice-remove-hint {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            border-radius: 6px;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.85rem;
+            margin: 0 0 1rem 0;
+        }
+        .status-pill {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.15rem;
+        }
+        .status-draft   { background: #e2e8f0; color: #334155; }
+        .status-sent    { background: #dbeafe; color: #1d4ed8; }
+        .status-partial { background: #fef3c7; color: #92400e; }
+        .status-paid    { background: #dcfce7; color: #166534; }
+        .status-overdue { background: #fee2e2; color: #b91c1c; }
+        .status-cancelled { background: #f1f5f9; color: #64748b; text-decoration: line-through; }
+
+        /* ---------- NEW: Record Payment modal spacing fixes ---------- */
+        #paymentForm label {
+            display: block;
+            margin-top: 1rem;
+            margin-bottom: 0.35rem;
+            font-weight: 600;
+        }
+        #paymentForm input,
+        #paymentForm textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.6rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+        #paymentForm textarea {
+            min-height: 4.5rem;
+            resize: vertical;
+        }
+        #paymentInvoiceSummary {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.7rem 0.9rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main App Wrapper -->
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Sovereign Ledger</h2>
+                
+            </div>
+            <nav class="nav-links">
+                <!-- ADDED data-tab attributes so JS knows which panel each link opens.
+                     href="#" kept so it still looks/behaves like a normal link if JS fails to load. -->
+                <a href="#" class="active" data-tab="tracker-panel">Project Tracker</a>
+                <a href="#" data-tab="invoices-panel">Invoices</a>
+                <a href="#" data-tab="clients-panel">Clients</a>
+            </nav>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+
+            <!-- ===================== TRACKER PANEL (your original content, untouched) ===================== -->
+            <div id="tracker-panel" class="tab-panel active">
+                <a class="btn-primary-action" href="login.html" role="button">Go to login</a>
+
+
+
+                <!-- Header Section -->
+                <header class="content-header">
+                    <div class="clients-header-row">
+                        <div>
+                            
+                            <!-- CHANGED: added id="currentProjectName" / id="currentProjectClient"
+                                 so JS can update these to match whichever project is active.
+                                 Text left as-is as a fallback/placeholder until JS runs. -->
+                            <h1 id="currentProjectName">Project: E-Commerce Redesign</h1>
+                            <p id="currentProjectClient">Client: Acme Corp</p>
+                        </div>
+                        <button id="openProjectModalBtn" class="btn-primary-action">+ Add Project</button>
+                    </div>
+                </header>
+
+                <!-- Your saved projects -->
+                <section class="card">
+                    <h3>Current Project</h3>
+                    <div id="projectListEmpty" class="instruction">No projects added yet.</div>
+                    <ul id="projectList" class="client-list"></ul>
+                </section>
+
+                <!-- Progress Card -->
+                <section class="card progress-card">
+                    <h3>Overall Project Progress</h3>
+                    <div class="progress-bar-container">
+                        <!-- The bar inside will grow smoothly later using JS -->
+                        <div class="progress-bar-fill" style="width: 40%;">40%</div>
+                    </div>
+                </section>
+
+                <!-- Milestones Checklist & Live Invoice Preview Section -->
+                <div class="workspace-grid">
+                    
+                    <!-- Left Column: Tasks/Milestones -->
+                    <div class="card tasks-section">
+                        <h3>Project Milestones</h3>
+                        <p class="instruction">Check completed phases below to update the invoice :</p>
+
+                        <!-- NEW: add your own phases instead of relying on the hardcoded demo ones -->
+                        <form id="milestoneForm" class="milestone-form">
+                            <input type="text" id="milestoneName" placeholder="Phase name (e.g. Testing & Handover)" required>
+                            <input type="number" id="milestoneCost" placeholder="Cost (£)" min="0" step="1" required>
+                            <button type="submit" class="btn-primary-action">+ Add Phase</button>
+                        </form>
+
+                        <!-- CHANGED: no longer hardcoded — JS now fills this in with
+                             whichever milestones belong to the currently active project.
+                             A brand new project starts with this empty. -->
+                        <div class="task-list" id="taskList"></div>
+                    </div>
+
+                    <!-- Right Column: Interactive Invoice Preview -->
+                    <div class="card invoice-preview" id="invoice">
+                        <div class="invoice-header">
+                            <h4>INVOICE PREVIEW</h4>
+                            <span class="badge">Draft</span>
+                        </div>
+                        <hr>
+                        <div class="invoice-details">
+                            <p><strong>From:</strong> <span id="invoice-from-business">Your Business Name</span> <button type="button" id="editBusinessNameBtn" class="edit-inline-btn">Edit</button></p>
+                            <p><strong>To:</strong> <span id="invoice-client">Acme Corp</span></p>
+                            <p style="margin-top: 0.75rem;"><strong>Invoice Date:</strong> <span id="invoice-date">--/--/----</span></p>
+                            <p style="color: #dc2626;"><strong>Payment Due:</strong> <span id="invoice-due-date">--/--/----</span></p>
+                        </div>
+
+                        <div id="invoice-items" style="margin: 1.5rem 0; font-size: 0.9rem;">
+                            <!-- JavaScript will insert items here -->
+                        </div>
+
+                        <div class="invoice-summary">
+                            <p class="total-text">Total Outstanding: <span id="invoice-total">£300</span></p>
+                        </div>
+                        <button class="btn-print">Generate Invoice PDF</button>
+                    </div>
+                </div>
+
+            </div>
+            <!-- ===================== END TRACKER PANEL ===================== -->
+
+
+            <!-- ===================== INVOICES PANEL (NEW — now wired up) ===================== -->
+            <div id="invoices-panel" class="tab-panel">
+                <header class="content-header">
+                    <h1>Invoices</h1>
+                </header>
+                <p class="instruction invoice-remove-hint">
+                    <strong>Note:</strong> "Cancelled" is the right status for a real invoice you no longer expect payment on — it keeps the record.
+                    "Remove" permanently deletes an invoice with no way to undo it, so use it only for test entries or mistakes.
+                </p>
+                <section class="card">
+                    <div id="invoiceListEmpty" class="instruction">No invoices yet. Generate one from the Project Tracker tab.</div>
+                    <ul id="invoiceList" class="client-list"></ul>
+                </section>
+            </div>
+            <!-- ===================== END INVOICES PANEL ===================== -->
+
+
+            <!-- ===================== CLIENTS PANEL (new) ===================== -->
+            <div id="clients-panel" class="tab-panel">
+                <header class="content-header">
+                    <div class="clients-header-row">
+                        <h1>Clients</h1>
+                        <button id="openClientModalBtn" class="btn-primary-action">+ Add Client</button>
+                    </div>
+                </header>
+
+                <section class="card">
+                    <div id="clientListEmpty" class="instruction">No clients yet. Add your first one to get started.</div>
+                    <ul id="clientList" class="client-list"></ul>
+                </section>
+            </div>
+            <!-- ===================== END CLIENTS PANEL ===================== -->
+
+        </main>
+    </div>
+
+    <!-- ===================== ADD CLIENT MODAL (new) ===================== -->
+    <div id="clientModalOverlay" class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="clientModalTitle" aria-modal="true">
+            <div class="modal-header">
+                <h3 id="clientModalTitle">Add Client</h3>
+                <button id="closeClientModalBtn" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+
+            <form id="clientForm">
+                <label for="clientName">Name</label>
+                <input type="text" id="clientName" name="clientName" required placeholder="Jane Doe">
+
+                <label for="clientEmail">Email</label>
+                <input type="email" id="clientEmail" name="clientEmail" required placeholder="jane@example.com">
+
+                <label for="clientBillingAddress">Billing Address</label>
+                <textarea id="clientBillingAddress" name="clientBillingAddress" required placeholder="123 Main St, City, Country"></textarea>
+
+                <label for="clientCompanyName">Company Name (optional)</label>
+                <input type="text" id="clientCompanyName" name="clientCompanyName" placeholder="Acme Corp">
+
+                <label>Show on invoices as:</label>
+                <div class="invoice-pref-group">
+                    <label class="invoice-pref-option">
+                        <input type="radio" name="invoiceDisplayPreference" value="name" checked>
+                        Client Name
+                    </label>
+                    <label class="invoice-pref-option">
+                        <input type="radio" name="invoiceDisplayPreference" value="company">
+                        Company Name
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelClientBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" id="clientFormSubmitBtn" class="btn-primary-action">Save Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ===================== END ADD CLIENT MODAL ===================== -->
+
+    <!-- ===================== ADD PROJECT MODAL (new) ===================== -->
+    <div id="projectModalOverlay" class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="projectModalTitle" aria-modal="true">
+            <div class="modal-header">
+                <h3 id="projectModalTitle">Add Project</h3>
+                <button id="closeProjectModalBtn" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+
+            <form id="projectForm">
+                <label for="projectName">Project Name</label>
+                <input type="text" id="projectName" name="projectName" required placeholder="Website Redesign">
+
+                <label for="projectClient">Select Client</label>
+                <select id="projectClient" name="projectClient" required>
+                    <!-- JS fills this in with an <option> for each saved client -->
+                </select>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelProjectBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary-action">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ===================== END ADD PROJECT MODAL ===================== -->
+
+    <!-- ===================== CLIENT DETAILS MODAL (new) ===================== -->
+    <div id="clientDetailsModalOverlay" class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="clientDetailsTitle" aria-modal="true">
+            <div class="modal-header">
+                <h3 id="clientDetailsTitle">Client Details</h3>
+                <button id="closeClientDetailsBtn" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+
+            <div id="clientDetailsInfo" class="instruction"></div>
+
+            <h4 style="margin: 1.2rem 0 0.6rem 0;">Projects for this client</h4>
+            <div id="clientDetailsProjectsEmpty" class="instruction">No projects for this client yet.</div>
+            <ul id="clientDetailsProjects" class="client-list"></ul>
+
+            <div class="modal-actions">
+                <button type="button" id="closeClientDetailsBtn2" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- ===================== END CLIENT DETAILS MODAL ===================== -->
+
+    <!-- ===================== BUSINESS SETTINGS MODAL (new) ===================== -->
+    <div id="businessModalOverlay" class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="businessModalTitle" aria-modal="true">
+            <div class="modal-header">
+                <h3 id="businessModalTitle">Your Business Details</h3>
+                <button id="closeBusinessModalBtn" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+
+            <form id="businessForm">
+                <label for="businessName">Business Name</label>
+                <input type="text" id="businessName" name="businessName" required placeholder="Your Business Name">
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelBusinessBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary-action">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ===================== END BUSINESS SETTINGS MODAL ===================== -->
+
+    <!-- ===================== RECORD PAYMENT MODAL (NEW) ===================== -->
+    <div id="paymentModalOverlay" class="modal-overlay">
+        <div class="modal" role="dialog" aria-labelledby="paymentModalTitle" aria-modal="true">
+            <div class="modal-header">
+                <h3 id="paymentModalTitle">Record Payment</h3>
+                <button id="closePaymentModalBtn" class="modal-close" aria-label="Close">&times;</button>
+            </div>
+
+            <form id="paymentForm">
+                <input type="hidden" id="paymentInvoiceId">
+                <input type="hidden" id="paymentTargetStatus">
+
+                <p class="instruction" id="paymentInvoiceSummary"></p>
+
+                <label for="paymentAmount">Amount Paid (£)</label>
+                <input type="number" id="paymentAmount" name="paymentAmount" min="0" step="0.01" required>
+
+                <label for="paymentDate">Date Paid</label>
+                <input type="date" id="paymentDate" name="paymentDate" required>
+
+                <label for="paymentReference">Notes <span style="font-weight: normal; color: #64748b;">(optional — e.g. a payment reference)</span></label>
+                <textarea id="paymentReference" name="paymentReference" rows="3" placeholder="e.g. Bank transfer ref #4471"></textarea>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelPaymentBtn" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary-action">Save Payment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- ===================== END RECORD PAYMENT MODAL ===================== -->
+
+<script src="app.js"></script>
+</body>
+</html>

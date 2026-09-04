@@ -1,0 +1,572 @@
+/* Base Reset & Variables */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+/* Master Layout Framework */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    background-color: #1e293b;
+    color: #fff;
+    padding: 2rem;
+}
+
+.sidebar h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    color: #38bdf8;
+}
+.tagline{
+  text-align: center;
+  font-weight: 800;
+  color: #38bdf8;
+  font-family: "Poppins", "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  line-height: 1.25;
+}
+
+.nav-links a {
+    display: block;
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    background-color: #334155;
+    color: #fff;
+}
+
+/* Main Workspace Styling */
+.main-content {
+    flex: 1;
+    padding: 2rem;
+}
+
+.content-header {
+    margin-bottom: 2rem;
+}
+
+.content-header p {
+    color: #64748b;
+}
+
+/* Reusable UI Components (Cards) */
+.card {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+/* Dynamic Progress Bar Component */
+.progress-bar-container {
+    background-color: #e2e8f0;
+    border-radius: 9999px;
+    height: 24px;
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    background-color: #10b981;
+    color: white;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    width: 0%; /* JavaScript updates this later */
+    transition: width 0.4s ease;
+}
+
+/* Splitting the Workspace into Columns */
+.workspace-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Form Interactivity Elements */
+.instruction {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    transition: background 0.2s;
+}
+
+.task-item:hover {
+    background-color: #f8fafc;
+}
+
+.task-item input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.task-item label {
+    flex: 1;
+    cursor: pointer;
+}
+
+.milestone-remove-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    flex-shrink: 0;
+}
+
+.milestone-remove-btn:hover {
+    color: #dc2626;
+}
+
+/* NEW — Add Phase form */
+.milestone-form {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.milestone-form input[type="text"] {
+    flex: 2;
+}
+
+.milestone-form input[type="number"] {
+    flex: 1;
+}
+
+.milestone-form input {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.milestone-form input:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+}
+
+.milestone-form .btn-primary-action {
+    padding: 0.6rem 1rem;
+    white-space: nowrap;
+}
+
+/* Premium Minimalist Invoice Component */
+.invoice-preview {
+    border: 2px dashed #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    background-color: #fef3c7;
+    color: #d97706;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+    margin: 1rem 0;
+}
+
+.invoice-details p {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.invoice-summary {
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+    text-align: right;
+}
+
+.total-text {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.btn-print {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.2s;
+}
+
+.btn-print:hover {
+    background-color: #1d4ed8;
+}
+
+
+/* ==========================================================================
+   NEW — added for tab switching (Tracker / Invoices / Clients)
+   ========================================================================== */
+
+/* Hide every panel by default, only show the one with .active */
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+
+/* ==========================================================================
+   NEW — Clients panel
+   ========================================================================== */
+
+.clients-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Separate from .btn-print on purpose — .btn-print is reserved for the
+   actual invoice print button so app.js's querySelector('.btn-print')
+   only ever finds that one button. Same visual style, different class. */
+.btn-primary-action {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary-action:hover {
+    background-color: #1d4ed8;
+}
+
+.client-list {
+    list-style: none;
+}
+
+.client-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+}
+
+.client-card-info strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.client-card-info span {
+    display: block;
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.15rem;
+}
+
+.client-card-clickable {
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.client-card-clickable:hover {
+    background-color: #f8fafc;
+}
+
+.client-delete-btn {
+    background: none;
+    border: none;
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.client-delete-btn:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================================================
+   NEW — Add Client modal
+   ========================================================================== */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 1rem;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #64748b;
+}
+
+#clientForm label,
+#projectForm label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0.9rem 0 0.4rem 0;
+}
+
+#clientForm input,
+#clientForm textarea,
+#projectForm input,
+#projectForm select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+    background: #fff;
+}
+
+#clientForm input:focus,
+#clientForm textarea:focus,
+#projectForm input:focus,
+#projectForm select:focus {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+}
+
+.btn-secondary {
+    background: #fff;
+    color: #333;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #f8fafc;
+}
+a.btn-primary-action{
+  text-decoration: none;
+  display: inline-block;
+}
+
+
+/* ==========================================================================
+   Bulletproof Print Stylesheet
+   ========================================================================== */
+@media print {
+    /* 1. Force hide every single element EXCEPT the invoice preview card */
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* 2. Tell the browser exactly what needs to stay visible */
+    #invoice, #invoice * {
+        visibility: visible !important;
+    }
+
+    /* 3. Strip away all structural grid/flex layouts and positioning */
+    html, body {
+        background: #fff !important;
+        background-color: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    .app-container, 
+    .main-content, 
+    .workspace-grid {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+
+    /* 4. Position the invoice perfectly at the top left of the blank paper */
+    #invoice {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 2rem !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+
+    /* hide the print button inside the invoice itself */
+    .btn-print {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 5. Force backgrounds to render on standard office printers */
+    .invoice-summary {
+        background-color: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+        margin-top: 4rem !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+.auth-page{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2rem 1rem;
+
+  /* gradient MVP background */
+  background: linear-gradient(135deg, #0b1220 0%, #1e293b 45%, #1d4ed8 100%);
+}
+
+.auth-card{
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  text-align: center;
+}
+
+/* match your existing app theme */
+.auth-card h2{
+  margin: 0 0 0.75rem 0;
+  font-size: 2rem;
+  color: #38bdf8;
+}
+
+/* keep your existing tagline styles, but ensure it stays nicely spaced inside the card */
+.auth-card .tagline{
+  margin: 0.25rem 0 1.25rem 0;
+}
+.auth-page{
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+
+  background: linear-gradient(135deg, #0b1220 0%, #1e293b 45%, #1d4ed8 100%);
+}
+
+.auth-card{
+  width: min(520px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+
+  text-align: center;
+}
+
+.auth-card h2{
+  margin: 0 0 0.75rem 0;
+  font-size: 2rem;
+  color: #38bdf8;
+}
+
+/* ensure your tagline spacing works inside the card */
+.auth-card .tagline{
+  margin: 0.25rem 0 1.5rem 0; /* centers + ensures it doesn’t sit too high/low */
+}
